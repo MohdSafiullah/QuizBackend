@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose")
 const parser = require("body-parser");
@@ -8,7 +9,7 @@ app.use(parser.urlencoded({extended: true}));
 app.use(cors({optionsSuccessStatus:200}))
 app.use(parser.json())
 
-mongoose.connect("mongodb://127.0.0.1:27017/quiz")
+mongoose.connect(process.env.DBURL)
 .then(()=>console.log("database is connected"))
 
 const quizSchema = new mongoose.Schema({
@@ -28,6 +29,10 @@ const quizSchema = new mongoose.Schema({
 
 const quizmodel = mongoose.model("quiz", quizSchema); 
 
+app.get("/", (req,res)=>{
+    res.send("Server is up and running")
+})
+
 app.get("/getquizzes", (req,res)=>{
     quizmodel.find({})
     .then((result)=>{
@@ -38,7 +43,7 @@ app.get("/getquizzes", (req,res)=>{
 app.post("/getQuestionList", (req,res)=>{
     quizmodel.find({_id: req.body.objid}, 'questionlist marksystem')
     .then((result)=>{
-        console.log(result)
+        // console.log(result)
         res.json(result)
     })
 })
@@ -56,7 +61,7 @@ app.post("/createquiz", (req, res)=>{
 app.post("/addQuestion", (req,res)=>{
      quizmodel.findOneAndUpdate({_id: req.body.id}, {$push: {questionlist: req.body.questionObj}}, {new: true})
     .then((response)=>{
-        console.log(response)
+        // console.log(response)
         res.json({success: true, ...response})
     }).catch(()=>{
         res.json({success: false})
@@ -64,6 +69,6 @@ app.post("/addQuestion", (req,res)=>{
 })
 
 
-app.listen(80, ()=>{
+app.listen(process.env.PORT || 80, ()=>{
     console.log("Server is running")
 })
