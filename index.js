@@ -68,6 +68,16 @@ app.post("/addQuestion", (req,res)=>{
     })
 })
 
+app.post("/deleteQuestion", (req,res)=>{
+    quizmodel.findOneAndUpdate({_id: req.body.quizid}, {$pull: {questionlist: {_id: req.body.questionid}}}, {new: true})
+    .then((response)=>{
+        // console.log(response)
+        res.json({success: true, ...response})
+    }).catch(()=>{
+        res.json({success: false})
+    })
+})
+
 
 app.listen(process.env.PORT || 80, ()=>{
     console.log("Server is running")
